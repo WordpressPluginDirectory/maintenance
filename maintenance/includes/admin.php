@@ -17,7 +17,7 @@ function mtnc_admin_setup()
 
 function mtnc_plugin_dismiss_dialog()
 {
-    if (!wp_verify_nonce($_REQUEST['nonce'], "mtnc_dismiss_nonce")) {
+    if (!isset($_REQUEST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['nonce'])), "mtnc_dismiss_nonce")) {
         exit("Woof Woof Woof");
     }
 
@@ -42,7 +42,11 @@ function mtnc_ajax_dismiss_notice()
         wp_send_json_error('You are not allowed to run this action.');
     }
 
-    $notice_name = trim(sanitize_text_field(@$_GET['notice_name']));
+    if(!isset($_GET['notice_name'])){
+        wp_send_json_error('Unknown action.');
+    }
+
+    $notice_name = sanitize_text_field(wp_unslash($_GET['notice_name']));
     $meta = get_option('maintenance_meta', array());
 
     if ($notice_name != 'welcome') {
@@ -56,7 +60,8 @@ function mtnc_ajax_dismiss_notice()
 
 function mtnc_plugin_information()
 {
-    if (empty($_GET['fix-install-button']) || empty($_GET['tab']) || $_GET['tab'] != 'plugin-information') {
+    // phpcs:ignore because this can be opened manually or linked to directly without a nonce present
+    if (empty($_GET['fix-install-button']) || empty($_GET['tab']) || wp_unslash($_GET['tab']) != 'plugin-information') { //phpcs:ignore
         return;
     }
 
@@ -82,11 +87,13 @@ function mtnc_register_settings()
         }
 
         if (isset($_POST['lib_options']['htmlcss'])) {
-            $_POST['lib_options']['htmlcss'] = wp_kses_stripslashes($_POST['lib_options']['htmlcss']);  // Allowed all tags as for WYSIWYG post content
+            // Allow unsanitized because it can contain any HTML and CSS
+            $_POST['lib_options']['htmlcss'] = wp_kses_stripslashes(wp_unslash($_POST['lib_options']['htmlcss']));  //phpcs:ignore
         }
 
         if (isset($_POST['lib_options'])) {
-            $lib_options = sanitize_post(wp_unslash($_POST['lib_options']), 'db');
+            $lib_options = array_map('sanitize_textarea_field', wp_unslash($_POST['lib_options']));
+            
             $lib_options['default_settings'] = false;
             update_option('maintenance_options', $lib_options);
             MTNC::mtnc_clear_cache();
@@ -111,7 +118,7 @@ function mtnc_admin_print_custom_styles()
     wp_enqueue_style('plugin-install');
     wp_enqueue_script('plugin-install');
 
-    wp_enqueue_style('arvo', '//fonts.bunny.net/css?family=Open+Sans:400,300,600,700|Arvo:400,400italic,700,700italic');
+    wp_enqueue_style('arvo', '//fonts.bunny.net/css?family=Open+Sans:400,300,600,700|Arvo:400,400italic,700,700italic', array(), true);
     wp_enqueue_style('wp-color-picker');
 
     wp_enqueue_script('uploads_', MTNC_URI . 'js/uploads_.min.js', 'jquery', filemtime(MTNC_DIR . 'js/uploads_.min.js'), '');
@@ -119,7 +126,7 @@ function mtnc_admin_print_custom_styles()
 
     $cm_settings['codeEditor'] = wp_enqueue_code_editor(array('type' => 'text/css'));
     $meta                                 = get_option('maintenance_meta', array());
-    $firstInstallDateTime             = date('Y-m-d H:i:s', $meta['first_install']);
+    $firstInstallDateTime             = gmdate('Y-m-d H:i:s', $meta['first_install']);
     $firstInstallDateTimeTimeStamp     = (new DateTime($firstInstallDateTime))->add(new DateInterval('PT15M'))->getTimestamp();
 
     $nonce = wp_create_nonce("mtnc_dismiss_nonce");
@@ -138,7 +145,7 @@ function mtnc_admin_print_custom_styles()
                 array(
                     'action' => 'mtnc_install_wpfssl',
                     '_wpnonce' => wp_create_nonce('install_wpfssl'),
-                    'rnd' => rand()
+                    'rnd' => wp_rand()
                 ),
                 admin_url('admin.php')
             ),
@@ -146,7 +153,7 @@ function mtnc_admin_print_custom_styles()
                 array(
                     'action' => 'mtnc_install_weglot',
                     '_wpnonce' => wp_create_nonce('install_weglot'),
-                    'rnd' => rand()
+                    'rnd' => wp_rand()
                 ),
                 admin_url('admin.php')
             ),
