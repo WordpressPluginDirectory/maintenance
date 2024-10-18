@@ -92,8 +92,7 @@ function mtnc_register_settings()
         }
 
         if (isset($_POST['lib_options'])) {
-            $lib_options = array_map('sanitize_textarea_field', wp_unslash($_POST['lib_options']));
-            
+            $lib_options = map_deep(wp_unslash($_POST['lib_options']), 'sanitize_text_field');            
             $lib_options['default_settings'] = false;
             update_option('maintenance_options', $lib_options);
             MTNC::mtnc_clear_cache();
