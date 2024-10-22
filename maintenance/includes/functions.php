@@ -521,7 +521,7 @@ function mtnc_add_data_fields($object, $box)
       mtnc_generate_check_field(__('Show Contact Form', 'maintenance'), 'Enable &amp; customize a contact form on the page so that visitors can easily get in touch with you.', 'content_contact_form', '', false, true);
       mtnc_generate_check_field(__('Show Map', 'maintenance'), 'Make it super-easy for visitors to find your business by displaying a map with your location.', 'content_map', '', false, true);
       mtnc_generate_check_field(__('Show Progress Bar', 'maintenance'), 'Let visitors know how your new site is progressing and when is it going to be complete.', 'content_progress_bar', '', false, true);
-      mtnc_generate_check_field(__('Enable Frontend Login', 'maintenance'), '', 'is_login', 'is_login', isset($mt_option['is_login']));
+      mtnc_generate_check_field(__('Enable Frontend Login', 'maintenance'), '', 'is_login', 'is_login', (isset($mt_option['is_login']) && $mt_option['is_login'] == true ));
 
       mtnc_wp_kses('<tr><td colspan="2"><p><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></p></td></tr>');
       ?>

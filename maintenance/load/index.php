@@ -129,7 +129,7 @@ $bunny_fonts = mtnc_add_bunny_fonts();
 </div>
 
 <?php do_action( 'after_main_container' ); ?>
-<?php if ( isset( $mt_options['is_login'] ) ) : ?>
+<?php if ( isset( $mt_options['is_login'] ) && $mt_options['is_login'] == true ) : ?>
 	<div class="login-form-container">
 		<?php mtnc_do_login_form( esc_attr( $mess_arr[3] ), esc_attr( $mess_arr[1] ), esc_attr( $mess_arr[2] ), esc_attr( $mess_arr[0] ) ); ?>
 		<?php mtnc_do_button_login_form(); ?>

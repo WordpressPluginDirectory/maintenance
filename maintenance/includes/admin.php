@@ -80,19 +80,32 @@ function mtnc_register_settings()
 {
 
     if (!empty($_POST['lib_options']) && check_admin_referer('mtnc_edit_post', 'mtnc_nonce')) {
-        if (!isset($_POST['lib_options']['state'])) {
-            $_POST['lib_options']['state'] = 0;
-        } else {
-            $_POST['lib_options']['state'] = 1;
-        }
-
-        if (isset($_POST['lib_options']['htmlcss'])) {
-            // Allow unsanitized because it can contain any HTML and CSS
-            $_POST['lib_options']['htmlcss'] = wp_kses_stripslashes(wp_unslash($_POST['lib_options']['htmlcss']));  //phpcs:ignore
-        }
+        $lib_options['state'] = !isset($_POST['lib_options']['state'])?0:1;
+        $lib_options['exclude_pages'] = isset($_POST['lib_options']['exclude_pages'])?map_deep(wp_unslash($_POST['lib_options']['exclude_pages']), 'sanitize_text_field'):array('post' => array(),'page' => array());
+        $lib_options['page_title'] = isset($_POST['lib_options']['page_title'])?sanitize_text_field(wp_unslash($_POST['lib_options']['page_title'])):'';
+        $lib_options['heading'] = isset($_POST['lib_options']['heading'])?sanitize_text_field(wp_unslash($_POST['lib_options']['heading'])):'';
+        $lib_options['description'] = isset($_POST['lib_options']['description'])?wp_kses_post(wp_unslash($_POST['lib_options']['description'])):'';
+        $lib_options['footer_text'] = isset($_POST['lib_options']['footer_text'])?sanitize_text_field(wp_unslash($_POST['lib_options']['footer_text'])):'';
+        $lib_options['is_login'] = isset($_POST['lib_options']['is_login'])?true:false;
+        $lib_options['logo_width'] = isset($_POST['lib_options']['logo_width'])?sanitize_text_field(wp_unslash($_POST['lib_options']['logo_width'])):220;
+        $lib_options['logo_height'] = isset($_POST['lib_options']['logo_height'])?sanitize_text_field(wp_unslash($_POST['lib_options']['logo_height'])):'';
+        $lib_options['logo'] = isset($_POST['lib_options']['logo'])?sanitize_text_field(wp_unslash($_POST['lib_options']['logo'])):'';
+        $lib_options['retina_logo'] = isset($_POST['lib_options']['retina_logo'])?sanitize_text_field(wp_unslash($_POST['lib_options']['retina_logo'])):'';
+        $lib_options['body_bg'] = isset($_POST['lib_options']['body_bg'])?sanitize_text_field(wp_unslash($_POST['lib_options']['body_bg'])):'';
+        $lib_options['bg_image_portrait'] = isset($_POST['lib_options']['bg_image_portrait'])?sanitize_text_field(wp_unslash($_POST['lib_options']['bg_image_portrait'])):'';
+        $lib_options['preloader_img'] = isset($_POST['lib_options']['preloader_img'])?sanitize_text_field(wp_unslash($_POST['lib_options']['preloader_img'])):'';
+        $lib_options['body_bg_color'] = isset($_POST['lib_options']['body_bg_color'])?sanitize_text_field(wp_unslash($_POST['lib_options']['body_bg_color'])):'#111111';
+        $lib_options['font_color'] = isset($_POST['lib_options']['font_color'])?sanitize_text_field(wp_unslash($_POST['lib_options']['font_color'])):'#ffffff';
+        $lib_options['controls_bg_color'] = isset($_POST['lib_options']['controls_bg_color'])?sanitize_text_field(wp_unslash($_POST['lib_options']['controls_bg_color'])):'#111111';
+        $lib_options['body_font_family'] = isset($_POST['lib_options']['body_font_family'])?sanitize_text_field(wp_unslash($_POST['lib_options']['body_font_family'])):'Open Sans';
+        $lib_options['body_font_subset'] = isset($_POST['lib_options']['body_font_subset'])?sanitize_text_field(wp_unslash($_POST['lib_options']['body_font_subset'])):'Latin';
+        $lib_options['503_enabled'] = isset($_POST['lib_options']['503_enabled'])?true:false;
+        $lib_options['is_blur'] = isset($_POST['lib_options']['is_blur'])?true:false;
+        $lib_options['blur_intensity'] = isset($_POST['lib_options']['blur_intensity'])?sanitize_text_field(wp_unslash($_POST['lib_options']['blur_intensity'])):5;
+        $lib_options['gg_analytics_id'] = isset($_POST['lib_options']['gg_analytics_id'])?sanitize_text_field(wp_unslash($_POST['lib_options']['gg_analytics_id'])):'';
+        $lib_options['custom_css'] = isset($_POST['lib_options']['custom_css'])?wp_kses_post(wp_unslash($_POST['lib_options']['custom_css'])):'';
 
         if (isset($_POST['lib_options'])) {
-            $lib_options = map_deep(wp_unslash($_POST['lib_options']), 'sanitize_text_field');            
             $lib_options['default_settings'] = false;
             update_option('maintenance_options', $lib_options);
             MTNC::mtnc_clear_cache();

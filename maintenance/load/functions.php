@@ -377,7 +377,7 @@ function mtnc_do_login_form($user_login, $class_login, $class_password, $error =
     $out_login_form .= wp_nonce_field('mtnc_login', 'mtnc_login_check');
     $out_login_form .= '</form>';
 
-    if (isset($mt_options['is_login'])) {
+    if (isset($mt_options['is_login']) && $mt_options['is_login'] == true) {
         mtnc_wp_kses($out_login_form);
     }
 }
